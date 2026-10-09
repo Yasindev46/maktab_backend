@@ -72,22 +72,7 @@ try {
   const server = app.listen(port, () => {
     console.log(`Deeniyat API listening on http://localhost:${port}`);
   });
-
-  let shuttingDown = false;
-  async function closeServer() {
-    if (shuttingDown) return;
-    shuttingDown = true;
-    server.close(async (error) => {
-      if (error) {
-        console.error('HTTP server shutdown failed:', error);
-        process.exitCode = 1;
-      }
-      await mongoose.disconnect();
-    });
-  }
-
-  process.on('SIGINT', closeServer);
-  process.on('SIGTERM', closeServer);
+ 
 } catch (error) {
   console.error(`MongoDB startup failed: ${error.message}`);
   process.exitCode = 1;
