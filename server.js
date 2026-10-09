@@ -21,21 +21,8 @@ const upload = multer({
   limits: { fileSize: 2 * 1024 * 1024, files: 1 },
 });
 const port = Number(process.env.PORT) || 3001;
-const allowedOrigins = new Set(
-  (process.env.CLIENT_URL || 'http://localhost:5173')
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean),
-);
 
-app.use(cors({
-  origin(origin, callback) {
-    if (!origin || allowedOrigins.has(origin)) return callback(null, true);
-    const error = new Error('This origin is not allowed to access the API.');
-    error.status = 403;
-    return callback(error);
-  },
-}));
+app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/api/health', (_request, response) => {
