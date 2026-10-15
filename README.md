@@ -11,8 +11,9 @@ expenses. Data is stored in MongoDB through Mongoose.
 
 ## Run
 
-Install dependencies and set the MongoDB connection string in `server/.env`,
-then start the API:
+Install dependencies, copy `.env.example` to `.env` in the backend root, and
+configure the database URI, JWT secret, and initial admin credentials before
+starting the API:
 
 ```sh
 npm install
@@ -29,6 +30,14 @@ Configure these values in `.env`:
 - `MONGODB_URI`: MongoDB connection URI (required; `MONGO_URI` is also accepted).
 - `MONGODB_DB_NAME`: Optional database name to use instead of the one in the URI.
 - `PORT`: HTTP port; defaults to `3001`.
+- `JWT_SECRET`: unique signing secret of at least 32 characters.
+- `BOOTSTRAP_ADMIN_USERNAME` and `BOOTSTRAP_ADMIN_PASSWORD`: required initial
+  administrator credentials. The account is created on first startup and its
+  password is hashed before storage.
+- `BOOTSTRAP_ADMIN_USER_ID`: optional stable ID for the initial admin.
+
+Generate a secret with `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`.
+Do not commit `.env` or use the example placeholder values in production.
 
 For browser requests, CORS allows only the local frontend origin
 `http://localhost:5173`.
@@ -43,6 +52,8 @@ connection is ready.
 - `attendance_records`: `student_id`, ISO date string, and `Present`/`Absent` status.
 - `fees_records`: unique `student_id`, `paid_amount`, and optional `notes`.
 - `expenses_records`: numeric `id`, `paid_amount`, `purpose`, and ISO date string.
+- `users`: unique username, bcrypt-hashed password, user ID, and role (`admin`
+  or `nonAdmin`).
 
 The models use the existing MongoDB collection names. The numeric student ID is
 kept in API responses so the existing client and imported records continue to
@@ -51,6 +62,12 @@ largest existing ID in their collection.
 
 ## API routes
 
+- `POST /api/auth/loginuser`: public login. Send
+  `{"username":"...","password":"..."}` to receive a bearer token.
+- `POST /api/auth/registeruser`: public registration. Usernames must be 3–32
+  letters, numbers, dots, underscores, or hyphens. Passwords must be at least
+  8 characters and no more than 72 UTF-8 bytes. Public registrations receive
+  the `nonAdmin` role.
 - `GET /api/students`, `POST /api/students`, `PUT /api/students/:id`,
   `POST /api/students/import`
 - `POST /api/attendance/mark-all`, `POST /api/attendance/finalize`,
@@ -62,8 +79,10 @@ largest existing ID in their collection.
 Student imports use a CSV with `sr`, `name`, `class`, and `mobile` columns.
 Expenses accept `date`, `amount`, and `purpose`.
 
-The application does not include API-token authentication. Configure
-authentication before exposing this API publicly if required.
+All routes except login, registration, and `GET /api/health` require
+`Authorization: Bearer <token>`. Tokens expire after 12 hours. Both roles can
+use student, attendance, and analytics APIs; fees and expenses APIs require
+the `admin` role. Keep the JWT secret and bootstrap admin credentials secure.
 
 ## Connection monitoring
 

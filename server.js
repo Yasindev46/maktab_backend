@@ -5,12 +5,15 @@ import multer from 'multer';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import connectDB from './config/database.js';
+import { bootstrapAdminUser, validateAuthConfig } from './config/auth.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import attendanceRoutes from './routes/attendanceRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import expenseRoutes from './routes/expenseRoutes.js';
 import feeRoutes from './routes/feeRoutes.js';
 import studentRoutes from './routes/studentRoutes.js';
 import mongoose from 'mongoose';
+import authenticate, { requireAdmin } from './middleware/authenticate.js';
 
 const root = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: join(root, '.env') });
@@ -24,6 +27,7 @@ const port = Number(process.env.PORT) || 3001;
 
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
+app.use('/api/auth', authRoutes);
 
 app.get('/api/health', (_request, response) => {
   const connected = mongoose.connection.readyState === 1;
@@ -33,10 +37,11 @@ app.get('/api/health', (_request, response) => {
   });
 });
 
+app.use('/api', authenticate);
 app.use('/api/students', studentRoutes(upload));
 app.use('/api/attendance', attendanceRoutes);
-app.use('/api/fees', feeRoutes);
-app.use('/api/expenses', expenseRoutes);
+app.use('/api/fees', requireAdmin, feeRoutes);
+app.use('/api/expenses', requireAdmin, expenseRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
 app.use('/api', (request, response) => {
@@ -55,7 +60,9 @@ app.use((error, _request, response, _next) => {
 });
 
 try {
+  validateAuthConfig();
   await connectDB();
+  await bootstrapAdminUser();
   const server = app.listen(port, () => {
     console.log(`Deeniyat API listening on http://localhost:${port}`);
   });
