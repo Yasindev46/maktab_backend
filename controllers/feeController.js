@@ -32,7 +32,7 @@ export async function updateFee(request, response) {
   const acceptFee=fixedFee+600
   const notes = String(request.body.notes ?? '').trim();
   if (!Number.isFinite(paidAmount) || paidAmount < 0 || paidAmount > acceptFee) {
-    throw httpError(`Paid amount must be between ₹0 and ₹${acceptFee}.`, 400);
+    throw httpError(`Paid amount must be between ₹0.00 and ₹${acceptFee}.`, 400);
   }
   if (!await Student.exists({ id: studentId })) throw httpError('Student not found.', 404);
   await Fee.findOneAndUpdate(
