@@ -30,8 +30,8 @@ export async function updateFee(request, response) {
   const studentId = positiveInteger(request.params.studentId, 'A valid student ID is required.');
   const paidAmount = Number(request.body.paid_amount);
   const notes = String(request.body.notes ?? '').trim();
-  if (!Number.isFinite(paidAmount) || paidAmount < 0 || paidAmount > fixedFee) {
-    throw httpError(`Paid amount must be between ₹0 and ₹${fixedFee}.`, 400);
+  if (!Number.isFinite(paidAmount) || paidAmount < 0 || paidAmount > fixedFee+600) {
+    throw httpError(`Paid amount must be between ₹0 and ₹${fixedFee+600}.`, 400);
   }
   if (!await Student.exists({ id: studentId })) throw httpError('Student not found.', 404);
   await Fee.findOneAndUpdate(

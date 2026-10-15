@@ -29,7 +29,9 @@ Configure these values in `.env`:
 - `MONGODB_URI`: MongoDB connection URI (required; `MONGO_URI` is also accepted).
 - `MONGODB_DB_NAME`: Optional database name to use instead of the one in the URI.
 - `PORT`: HTTP port; defaults to `3001`.
-- `CLIENT_URL`: Allowed frontend origin; multiple origins can be comma-separated.
+
+For browser requests, CORS allows only the local frontend origin
+`http://localhost:5173`.
 
 The MongoDB client is shared for the lifetime of the server and uses the Node
 driver's default pool settings. `GET /api/health` reports whether the database
