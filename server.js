@@ -22,9 +22,7 @@ const upload = multer({
 });
 const port = Number(process.env.PORT) || 3001;
 
-app.use(cors({
-  origin: [process.env.LOCAL_REACT_URL, process.env.CLIENT_URL],
-}));
+app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/api/health', (_request, response) => {
