@@ -39,8 +39,9 @@ Configure these values in `.env`:
 Generate a secret with `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`.
 Do not commit `.env` or use the example placeholder values in production.
 
-For browser requests, CORS allows only the local frontend origin
-`http://localhost:5173`.
+For browser requests, CORS allows `https://yasindev46.github.io`,
+`http://localhost:5173`, and any origins configured with `LOCAL_REACT_URL` or
+`CLIENT_URL`.
 
 The MongoDB client is shared for the lifetime of the server and uses the Node
 driver's default pool settings. `GET /api/health` reports whether the database
